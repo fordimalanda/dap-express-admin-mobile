@@ -68,14 +68,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         await dioClient.saveToken(token);
         emit(AuthAuthenticated(admin, token));
       } catch (e) {
-        // Fallback démo pour tester sans serveur
-        final fakeAdmin = AdminModel(
-          id: 'admin-1',
-          email: event.email,
-          name: 'Admin Mobile',
-          role: 'SUPER_ADMIN',
-        );
-        emit(AuthAuthenticated(fakeAdmin, 'dev_token_sample'));
+        emit(AuthFailure('Identifiants incorrects ou serveur API injoignable'));
       }
     });
 
