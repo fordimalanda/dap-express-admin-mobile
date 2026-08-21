@@ -5,6 +5,9 @@ import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';
 import '../bloc/dashboard_bloc.dart';
 
+import '../../notifications/bloc/notifications_bloc.dart';
+import '../../notifications/screens/notifications_screen.dart';
+
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
@@ -20,6 +23,47 @@ class DashboardScreen extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Tableau de Bord'),
           actions: [
+            BlocBuilder<NotificationsBloc, NotificationsState>(
+              builder: (context, notifState) {
+                final unread = notifState is NotificationsLoaded ? notifState.unreadCount : 0;
+                return IconButton(
+                  icon: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      const Icon(Icons.notifications_outlined),
+                      if (unread > 0)
+                        Positioned(
+                          right: -4,
+                          top: -4,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: AppColors.primary,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                            child: Text(
+                              unread > 9 ? '9+' : '$unread',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+                    );
+                  },
+                );
+              },
+            ),
             Builder(
               builder: (ctx) => IconButton(
                 icon: const Icon(Icons.refresh),

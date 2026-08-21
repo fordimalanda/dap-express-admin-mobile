@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../dashboard/screens/dashboard_screen.dart';
 import '../../orders/screens/orders_screen.dart';
 import '../../products/screens/products_screen.dart';
+import '../../notifications/screens/notifications_screen.dart';
+import '../../notifications/bloc/notifications_bloc.dart';
 
 class MainNavScreen extends StatefulWidget {
   const MainNavScreen({super.key});
@@ -18,6 +21,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
     DashboardScreen(),
     OrdersScreen(),
     ProductsScreen(),
+    NotificationsScreen(),
   ];
 
   @override
@@ -27,29 +31,50 @@ class _MainNavScreenState extends State<MainNavScreen> {
         index: _currentIndex,
         children: _screens,
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        indicatorColor: AppColors.primaryLight,
-        onDestinationSelected: (idx) {
-          setState(() => _currentIndex = idx);
+      bottomNavigationBar: BlocBuilder<NotificationsBloc, NotificationsState>(
+        builder: (context, notifState) {
+          final unread = notifState is NotificationsLoaded ? notifState.unreadCount : 0;
+
+          return NavigationBar(
+            selectedIndex: _currentIndex,
+            indicatorColor: AppColors.primaryLight,
+            onDestinationSelected: (idx) {
+              setState(() => _currentIndex = idx);
+            },
+            destinations: [
+              const NavigationDestination(
+                icon: Icon(Icons.dashboard_outlined),
+                selectedIcon: Icon(Icons.dashboard, color: AppColors.primary),
+                label: 'Dashboard',
+              ),
+              const NavigationDestination(
+                icon: Icon(Icons.shopping_bag_outlined),
+                selectedIcon: Icon(Icons.shopping_bag, color: AppColors.primary),
+                label: 'Commandes',
+              ),
+              const NavigationDestination(
+                icon: Icon(Icons.inventory_2_outlined),
+                selectedIcon: Icon(Icons.inventory_2, color: AppColors.primary),
+                label: 'Produits',
+              ),
+              NavigationDestination(
+                icon: Badge(
+                  isLabelVisible: unread > 0,
+                  label: Text('$unread'),
+                  backgroundColor: AppColors.primary,
+                  child: const Icon(Icons.notifications_outlined),
+                ),
+                selectedIcon: Badge(
+                  isLabelVisible: unread > 0,
+                  label: Text('$unread'),
+                  backgroundColor: AppColors.primary,
+                  child: const Icon(Icons.notifications, color: AppColors.primary),
+                ),
+                label: 'Alertes',
+              ),
+            ],
+          );
         },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard, color: AppColors.primary),
-            label: 'Dashboard',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.shopping_bag_outlined),
-            selectedIcon: Icon(Icons.shopping_bag, color: AppColors.primary),
-            label: 'Commandes',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.inventory_2_outlined),
-            selectedIcon: Icon(Icons.inventory_2, color: AppColors.primary),
-            label: 'Produits',
-          ),
-        ],
       ),
     );
   }
